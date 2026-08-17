@@ -54,19 +54,25 @@ class UserController extends Controller
 
         if ($validate) {
 
+            $image_path_name = null;
             $image_path = $request->file('image_path');
             if ($image_path) {
                 $image_path_name = time().$image_path->getClientOriginalName();
                 Storage::disk('users')->put($image_path_name, File::get($image_path));
             }
 
-            $user->update([
+            $data = [
                 'name' => $request['name'],
                 'last_name' => $request['lastname'],
                 'nick' => $request['nick'],
                 'email' => $request['email'],
-                'image' => $image_path_name,
-            ]);
+            ];
+
+            if ($image_path_name) {
+                $data['image'] = $image_path_name;
+            }
+
+            $user->update($data);
 
             return redirect()->route('user.config')->with('message', 'update');
 
@@ -78,7 +84,7 @@ class UserController extends Controller
     public function getImage($filename)
     {
         $file = Storage::disk('users')->get($filename);
-        return new Response($file, 200);
+        return new Response($file, 200, ['Content-Type' => 'image/' . \Illuminate\Support\Facades\File::extension($filename)]);
     }
 
     public function profile($id)

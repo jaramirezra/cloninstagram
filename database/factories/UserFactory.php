@@ -21,7 +21,7 @@ $factory->define(App\User::class, function (Faker $faker) {
         'nick' => $faker->word,
         'email' => $faker->unique()->safeEmail,
         'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
-        'image' => $faker->imageUrl(640, 480),
+        'image' => \App\Helpers\ImagePlaceholder::make(150, 150, storage_path('app/users')),
         'remember_token' => str_random(10),
     ];
 });

@@ -7,7 +7,7 @@ use App\Models\Image;
 use App\Models\Comment;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -104,7 +104,7 @@ class ImageController extends Controller
     public function getImage($filename)
     {
         $file = Storage::disk('images')->get($filename);
-        return new Response($file, 200);
+        return new Response($file, 200, ['Content-Type' => 'image/' . \Illuminate\Support\Facades\File::extension($filename)]);
     }
 
     public function delete($id)

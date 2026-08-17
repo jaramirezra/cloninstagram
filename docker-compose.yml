@@ -1,0 +1,58 @@
+services:
+  db:
+    image: mysql:5.7
+    container_name: instagram_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: instagram
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+    ports:
+      - "33066:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootsecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    container_name: instagram_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_KEY: base64:Ky8KgA1lcxx4t2YE2fv7w672u+ONGwdMuCNWutyxMBk=
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8081
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: instagram
+      DB_USERNAME: homestead
+      DB_PASSWORD: secret
+    ports:
+      - "9000:9000"
+    volumes:
+      - app_storage:/var/www/storage
+
+  web:
+    image: nginx:alpine
+    container_name: instagram_web
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "8081:80"
+    volumes:
+      - .:/var/www:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  db_data:
+  app_storage:
